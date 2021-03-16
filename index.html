@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+  <title>Anime List</title>
+</head>
+
+<body>
+  <header>
+    <div>
+      <h1>Anime Library</h1>
+      <p>List of all anime in the world</p>
+    </div>
+  </header>
+  <main>
+    <section class="search-bar">
+      <div class="search-input">
+        <svg data-v-458a983a="" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="search" role="img"
+          xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon left svg-inline--fa fa-search fa-w-16">
+          <path data-v-458a983a="" fill="currentColor"
+            d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"
+            class=""></path>
+        </svg>
+        <input type="text" onkeyup="onTyping(this)" />
+      </div>
+      <button onclick="onSearch()">Search</button>
+    </section>
+    <div id="list-page">
+      <section id="list-anime" class="anime-list-section">
+        <div class="head">
+          <h3>Search Result :</h3>
+        </div>
+        <div class="loader">
+          <div class="spinner">
+            <div class="bounce1"></div>
+            <div class="bounce2"></div>
+            <div class="bounce3"></div>
+          </div>
+        </div>
+        <div class="content"></div>
+      </section>
+    </div>
+    <div id="landing-page">
+      <section id="popular-anime" class="anime-list-section">
+        <div class="head">
+          <h3>Popular Anime</h3>
+          <a href="#">View All</a>
+        </div>
+        <div class="content"></div>
+      </section>
+      <section id="airing-anime" class="anime-list-section">
+        <div class="head">
+          <h3>Airing Anime</h3>
+          <a href="#">View All</a>
+        </div>
+        <div class="content"></div>
+      </section>
+      <section id="upcoming-anime" class="anime-list-section">
+        <div class="head">
+          <h3>Upcoming Anime</h3>
+          <a href="#">View All</a>
+        </div>
+        <div class="content"></div>
+      </section>
+      <section id="top-anime">
+        <div class="head">
+          <h3>Top 10 Anime</h3>
+          <a href="#">View All</a>
+        </div>
+        <div class="content"></div>
+      </section>
+    </div>
+  </main>
+  <footer>&#169 2020 Degetek Studio</footer>
+  <script src="./script.js"></script>
+  <script>
+
+    class Loader {
+      loader = document.querySelector('.loader')
+      show() {
+        this.loader.style.display = "block";
+      }
+      hide() {
+        this.loader.style.display = "none"
+      }
+    }
+    
+    const loader = new Loader();
+    
+    function renderTopAnime(data) {
+      for (let i = 0; i < 10; i++) {
+        const item = data[i];
+        const wrapper = document.createElement("article");
+        wrapper.innerHTML = `
+            <span class="number">#${i + 1}</span>
+            <div class="description">
+              <div class="left-side">
+                <img
+                  src="${item.image_url}"
+                />
+                <div class="title">
+                  <h4>${item.title}</h4>
+                  <span class="score">${item.score}</span>
+                </div>
+              </div>
+              <div class="right-side">
+                <div class="detail-item">
+                  <h4>${item.type}</h4>
+                  <span>${item.episodes} Episodes</span>
+                </div>
+                <span>${item.start_date}</span>
+              </div>
+            </div>`;
+        const topContent = document.querySelector("#top-anime .content");
+        topContent.append(wrapper);
+      }
+    }
+
+    function onTyping(el) {
+      if (el.value.length <= 2) {
+        listPage.style.display = "none";
+        landingPage.style.display = "block";
+        loader.show();
+        const listAnimeContent = document.querySelector('#list-anime .content');
+        listAnimeContent.style.display = "none";
+      }
+    }
+
+
+
+    function onSearch() {
+      const searchInput = document.querySelector(".search-input input");
+      listPage.style.display = "block";
+      landingPage.style.display = "none";
+      const title = document.querySelector("#list-page h3");
+      title.innerText = `Search Result : "${searchInput.value}"`;
+      fetchApi(`search/anime?q=${searchInput.value}&page=1`).then((value) => {
+        const listAnimeContent = document.querySelector('#list-anime .content');
+        listAnimeContent.style.display = "flex";
+        loader.hide();
+        renderAnimeSection("#list-anime", value.results, 30)
+      });
+    }
+
+    const listPage = document.getElementById("list-page");
+    const landingPage = document.getElementById("landing-page");
+    listPage.style.display = "none";
+
+    fetchApi("top/anime/1/bypopularity").then(value => renderAnimeSection("#popular-anime", value.top));
+    fetchApi("top/anime/1/upcoming").then(value => renderAnimeSection("#upcoming-anime", value.top));
+    fetchApi("top/anime/1/airing").then(value => renderAnimeSection("#airing-anime", value.top));
+    fetchApi("top/anime").then(value => renderTopAnime(value.top));
+  </script>
+</body>
+
+</html>

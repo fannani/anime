@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/style.e308ff8e.css">
+  <title>Anime List</title>
+</head>
+
+<body>
+  <header>
+    <div>
+      <h1>Anime Library</h1>
+      <p>List of all anime in the world</p>
+    </div>
+  </header>
+  <main>
+    <section class="header">
+      <img>
+      <div class="description">
+        <h2 id="title">Sword Art Online</h2>
+        <p id="synopsis">In the year 2022, virtual reality has progressed by leaps and bounds, and a massive online
+          role-playing game
+          called Sword Art Online (SAO) is launched. With the aid of "NerveGea asidjaisod aoisdj aoisj diajs d</p>
+      </div>
+    </section>
+    <section class="detail">
+      <div id="sidebar"></div>
+      <div id="main">
+        <div class="section trailer">
+          <h3>Trailer</h3>
+          <div class="content"></div>
+        </div>
+        <div class="section characters">
+          <h3>Characters</h3>
+          <div class="content"></div>
+        </div>
+        <div class="section recommedations anime-list-section">
+          <h3>Recommendations</h3>
+          <div class="content"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer>&#169 2020 Degetek Studio</footer>
+  <script src="/script.75da7f30.js"></script>
+  <script>const url = new URL(window.location.href);
+const id = url.searchParams.get("id");
+fetchApi(`anime/${id}/characters_staff`).then(value => {
+  const {
+    characters
+  } = value;
+  const charactersEl = document.querySelector(".characters .content");
+
+  for (let i = 0; i < 10; i++) {
+    const character = characters[i];
+    const itemEl = document.createElement('div');
+    itemEl.classList.add('item');
+    const actor = character.voice_actors.find(value => value.language === 'Japanese');
+    itemEl.innerHTML = `
+            <div class="character">
+              <img
+                src="${character.image_url}" />
+              <div class="description">
+                <p>${character.name}</p>
+                <p>${character.role}</p>
+              </div>
+            </div>
+            <div class="actor">
+              <div class="description">
+                <p>${actor.name}</p>
+                <p>${actor.language}</p>
+              </div>
+              <img
+                src="${actor.image_url}" />
+            </div>`;
+    charactersEl.appendChild(itemEl);
+  }
+});
+fetchApi(`anime/${id}/recommendations`).then(value => {
+  renderAnimeSection('.recommedations', value.recommendations, 4);
+});
+fetchApi(`anime/${id}`).then(value => {
+  const {
+    title,
+    synopsis,
+    image_url
+  } = value;
+  renderToEl('#title', title);
+  renderToEl('#synopsis', synopsis);
+  renderImage('.header img', image_url);
+  const sidebar = document.getElementById('sidebar');
+  const genres = value.genres.map(value => value.name).join(', ');
+  const sidebarResource = [{
+    title: 'Type',
+    value: value.type
+  }, {
+    title: 'Aired',
+    value: value.aired.string
+  }, {
+    title: 'Score',
+    value: value.score
+  }, {
+    title: 'Premiered',
+    value: value.premiered
+  }, {
+    title: 'Source',
+    value: value.source
+  }, {
+    title: 'Rating',
+    value: value.rating
+  }, {
+    title: 'Episodes',
+    value: value.episodes
+  }, {
+    title: 'Episode Duration',
+    value: value.episode_duration
+  }, {
+    title: 'Status',
+    value: value.status
+  }, {
+    title: 'Broadcast',
+    value: value.broadcast
+  }, {
+    title: 'Genres',
+    value: genres
+  }];
+
+  for (item of sidebarResource) {
+    const title = document.createElement('h5');
+    title.innerText = item.title;
+    const value = document.createElement('p');
+    value.innerText = item.value;
+    sidebar.appendChild(title);
+    sidebar.appendChild(value);
+  }
+
+  const trailer = document.querySelector('.trailer .content');
+  trailer.innerHTML = `<iframe width="560" height="315" src="${value.trailer_url}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+});</script>
+</body>
+
+</html>
